@@ -8,8 +8,6 @@ package edu.eci.arsw.cinema.controllers;
 import edu.eci.arsw.cinema.model.*;
 import edu.eci.arsw.cinema.persistence.*;
 import edu.eci.arsw.cinema.services.CinemaServices;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

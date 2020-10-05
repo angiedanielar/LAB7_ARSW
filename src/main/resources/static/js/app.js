@@ -6,6 +6,59 @@ var app = (function () {
     var _hour;
     var _funcion;
     var fun = null;
+    var stompClient = null;
+    var seats;
+
+    class Seat {
+        constructor(row, col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    function buyTicket() {
+        var row = $("#fila").val();
+        var column = $("#columna").val();
+        console.info("buying ticket at row: " + row + "col: " + column);
+        verifyAvailability(row,column);
+        //buy ticket
+    }
+
+    var connectAndSubscribe = function () {
+        console.info('Connecting to WS...');
+        var socket = new SockJS('/stompendpoint');
+        stompClient = Stomp.over(socket);
+
+        //subscribe to /topic/TOPICXX when connections succeed
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/buyticket', function (message) {
+                alert("evento recibido");
+                var theObject=JSON.parse(message.body);
+
+            });
+        });
+
+    };
+
+    var verifyAvailability = function (row,col) {
+        var st = new Seat(row, col);
+        if (seats[row][col]===true){
+            seats[row][col]=false;
+            console.info("purchased ticket");
+            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
+
+        }
+        else{
+            console.info("Ticket not available");
+        }
+
+    };
+
+    function init(){
+        connectAndSubscribe();
+
+    }
 
     function _mapOneByOne(cinemaFunctions) {
         $("#cines > tbody").empty();
@@ -56,7 +109,7 @@ var app = (function () {
         if (f != null) {
             clearCanvas();
             console.log(fun);
-            var seats = fun.seats;
+            seats = fun.seats;
             console.log(seats);
             var c = document.getElementById("availabilityCanvas");
             var ctx = c.getContext("2d");
@@ -143,7 +196,9 @@ var app = (function () {
         openSeats: openSeats,
         update: update,
         borrar: borrar,
-        crear: crear
+        crear: crear,
+        buyTicket: buyTicket,
+        init: init
 
     };
 
