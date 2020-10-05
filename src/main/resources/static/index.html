@@ -92,8 +92,8 @@
     <div class="row">
         <div class="col-sm-6 col-md-6 col-lg-6">
 
-            <h2>Cinema:</h2> <input type="text" id="cinema" placeholder="Example: cinemaX">
-            <input type="text" id="date" placeholder="Example: 2018-12-18">
+            <h2>Cinema:</h2> <input value="cinemaX" type="text" id="cinema" placeholder="Example: cinemaX">
+            <input value="2018-12-18" type="text" id="date" placeholder="Example: 2018-12-18">
             <button onclick="app.getFunctions()" class="btn btn-primary">Get Functions</button>
 
             <h2 id="cinemaSelected"></h2>
@@ -119,9 +119,7 @@
             <canvas id="availabilityCanvas" width="600" height="400" style="border:1px solid #000000;"></canvas>
             <h3>Seat:</h3>
             <div class="row col-12 mt-2 align-items-center">
-                <input id = "fila" type="number" placeholder="Row" class="form-control col-2" required autofocus></input>
-                <input id = "columna" type="number" placeholder="Column" class="form-control col-2 ml-2" required></input>
-                <button class="ml-2 btn btn-outline-primary my-sm-0 col-2" onclick="app.buyTicket()">Buy</button>
+                <button style="font-size: medium" class="btn btn-primary" onclick="app.getMousePosition()">Buy</button>
             </div>
 
             <h2 style="align-content: center">Administrative Mode: </h2>

@@ -8,6 +8,7 @@ var app = (function () {
     var fun = null;
     var stompClient = null;
     var seats;
+    var canvas;
 
     class Seat {
         constructor(row, col) {
@@ -16,15 +17,7 @@ var app = (function () {
         }
     }
 
-    function buyTicket() {
-        var row = $("#fila").val();
-        var column = $("#columna").val();
-        console.info("buying ticket at row: " + row + "col: " + column);
-        verifyAvailability(row,column);
-        //buy ticket
-    }
-
-    var connectAndSubscribe = function () {
+    var connectAndSubscribe = function (callback) {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
@@ -33,8 +26,7 @@ var app = (function () {
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/buyticket', function (message) {
-                alert("evento recibido");
-                var theObject=JSON.parse(message.body);
+                callback(message);
 
             });
         });
@@ -45,18 +37,67 @@ var app = (function () {
         var st = new Seat(row, col);
         if (seats[row][col]===true){
             seats[row][col]=false;
-            console.info("purchased ticket");
+            alert("Purchased ticket");
             stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
 
         }
         else{
-            console.info("Ticket not available");
+            alert("Ticket not available");
         }
 
     };
 
+    function lanzaEvento(evento) {
+        var theObject = JSON.parse(evento.body);
+        console.info(theObject);
+        pintarAsiento(theObject.row, theObject.col);
+
+    }
+
+    function pintarAsiento(fila,columna){
+        var c = document.getElementById("availabilityCanvas");
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#4287f5";
+        ctx.fillRect((columna) * 55 + 25, (fila) * 55 + 120, 40, 40);
+    }
+
+    function getMousePosition() {
+        $('#availabilityCanvas').click(function (e) {
+            var rect = canvas.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            esAsiento(x,y);
+        });
+
+    };
+
+    function esAsiento(x,y){
+        var c = document.getElementById("availabilityCanvas");
+        var ctx = c.getContext("2d");
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+
+        if (!(pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0 && pixel[3] == 255)){
+            if (pixel[0] == 66 && pixel[1] == 135 && pixel[2] == 245) {
+                alert("Asiento ocupado");
+            }
+            else {
+                alert("Haz click en un asiento")
+            }
+        }
+        else {
+
+            calcularAsiento(x, y);
+        }
+    };
+
+    function calcularAsiento(x,y){
+        
+        verifyAvailability(x,y);
+    }
+
+
     function init(){
-        connectAndSubscribe();
+        connectAndSubscribe(lanzaEvento);
 
     }
 
@@ -113,7 +154,7 @@ var app = (function () {
             console.log(seats);
             var c = document.getElementById("availabilityCanvas");
             var ctx = c.getContext("2d");
-            ctx.fillStyle = "#4287f5";
+            ctx.fillStyle = "#969693";
             ctx.fillRect(c.width * 0.2, c.height * 0.05, c.width * 0.6, c.height * 0.075);
             var x = c.width * 0.1;
             var y = c.height * 0.20;
@@ -145,7 +186,7 @@ var app = (function () {
     }
 
     function clearCanvas() {
-        var canvas = document.getElementById("availabilityCanvas");
+        canvas = document.getElementById("availabilityCanvas");
         var ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
@@ -197,8 +238,8 @@ var app = (function () {
         update: update,
         borrar: borrar,
         crear: crear,
-        buyTicket: buyTicket,
-        init: init
+        init: init,
+        getMousePosition: getMousePosition
 
     };
 
