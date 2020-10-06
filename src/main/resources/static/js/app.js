@@ -9,6 +9,7 @@ var app = (function () {
     var stompClient = null;
     var seats;
     var canvas;
+    var concatenacion;
 
     class Seat {
         constructor(row, col) {
@@ -17,7 +18,7 @@ var app = (function () {
         }
     }
 
-    var connectAndSubscribe = function (callback) {
+    var connectAndSubscribe = function (identificador, callback) {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
@@ -25,7 +26,7 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/buyticket', function (message) {
+            stompClient.subscribe('/topic/buyticket'+identificador,function (message) {
                 callback(message);
 
             });
@@ -35,14 +36,11 @@ var app = (function () {
 
     var verifyAvailability = function (row,col) {
         var st = new Seat(row, col);
-        if (seats[row][col]===true){
-            seats[row][col]=false;
+        if (seats[row][col]===true) {
+            seats[row][col] = false;
             alert("Purchased ticket");
-            stompClient.send("/topic/buyticket", {}, JSON.stringify(st));
+            stompClient.send("/topic/buyticket" + concatenacion, {}, JSON.stringify(st));
 
-        }
-        else{
-            alert("Ticket not available");
         }
 
     };
@@ -112,12 +110,6 @@ var app = (function () {
         verifyAvailability(row, col);
     }
 
-
-    function init(){
-        connectAndSubscribe(lanzaEvento);
-
-    }
-
     function _mapOneByOne(cinemaFunctions) {
         $("#cines > tbody").empty();
         var tab = $("<table></table>")
@@ -161,6 +153,8 @@ var app = (function () {
         $.getScript(_module, function () {
             apiclient.getFunctionByFunctionNameAndDate(_cinema, _date + " " + _hour, _funcion, _updateCanvas);
         });
+        concatenacion = "."+_cinema + "." + _date + "." + _funcion;
+        connectAndSubscribe(concatenacion, lanzaEvento);
     }
 
     function _updateCanvas(f) {
@@ -255,7 +249,6 @@ var app = (function () {
         update: update,
         borrar: borrar,
         crear: crear,
-        init: init,
         getMousePosition: getMousePosition
 
     };
