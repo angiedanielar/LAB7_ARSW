@@ -58,7 +58,7 @@ var app = (function () {
         var c = document.getElementById("availabilityCanvas");
         var ctx = c.getContext("2d");
         ctx.fillStyle = "#4287f5";
-        ctx.fillRect((columna) * 55 + 25, (fila) * 55 + 120, 40, 40);
+        ctx.fillRect((columna) * 49 + 9, (fila) * 54 + 120, 40, 40);
     }
 
     function getMousePosition() {
@@ -78,10 +78,10 @@ var app = (function () {
 
         if (!(pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0 && pixel[3] == 255)){
             if (pixel[0] == 66 && pixel[1] == 135 && pixel[2] == 245) {
-                alert("Asiento ocupado");
+                alert("Seat occupied");
             }
             else {
-                alert("Haz click en un asiento")
+                alert("Please click a seat")
             }
         }
         else {
@@ -90,9 +90,26 @@ var app = (function () {
         }
     };
 
-    function calcularAsiento(x,y){
-        
-        verifyAvailability(x,y);
+    function calcularAsiento(x,y){    	        
+        var row;
+        var col;
+        var limiteX1;
+        var limiteY1;
+        var limiteX2;
+        var limiteY2
+        for (var i = 0; i < 12; i++) {
+            for (var j = 0; j < 7; j++) {
+                limiteX1 = i * 50 + 15;
+                limiteY1 = j * 54 + 125;
+                limiteX2 = limiteX1 + 20;
+                limiteY2 = limiteY1 + 20;
+                if (x >= limiteX1 && x <= limiteX2 && y >= limiteY1 && y <= limiteY2) {
+                    row = j;
+                    col = i;
+                }
+            }
+        }
+        verifyAvailability(row, col);
     }
 
 
@@ -155,31 +172,31 @@ var app = (function () {
             var c = document.getElementById("availabilityCanvas");
             var ctx = c.getContext("2d");
             ctx.fillStyle = "#969693";
-            ctx.fillRect(c.width * 0.2, c.height * 0.05, c.width * 0.6, c.height * 0.075);
-            var x = c.width * 0.1;
-            var y = c.height * 0.20;
-            var w = (c.width) * 0.8;
+            //Pantalla ctx.fillRect(c.width * 0.2, c.height * 0.05, c.width * 0.6, c.height * 0.075);
+            var x = c.width * 0.03;            
+            var y = c.height * 0.031;
+            var w = (c.width) * 0.75;
             var h = (c.height) * 0.75;
             var l;
             if (w < h) {
-                l = w * 0.8 / seats[0].length;
+                l = w * 0.91 / seats[0].length;
             } else {
-                l = h * 0.8 / seats.length;
+                l = h * 0.91 / seats.length;
             }
             var dx = (w - (l * seats[0].length)) / seats[0].length;
             var dy = (h - (l * seats.length)) / seats.length;
 
             seats.map(function (row) {
-                x = c.width * 0.1;
+                x = c.width * 0.02;
                 row.map(function (seat) {
                     ctx.fillStyle = "#000000";
                     if (!seat) {
                         ctx.fillStyle = "#4287f5";
                     }
                     ctx.fillRect(x, y, l, l);
-                    x = x + l + dx;
+                    x = x + 50 + dx;
                 })
-                y = y + l + dy;
+                y = y + 50 + dy;
             });
 
         }
